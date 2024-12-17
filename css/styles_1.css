@@ -1,0 +1,85 @@
+body{
+    background-color: black;
+    color: white;
+}
+
+
+h1,h2,h3,h4,h5,h6{
+    color: rgb(61, 43, 226);
+    font-style: italic;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+h2{
+    color: green;
+}
+
+
+
+
+.navbar{
+    background-color: rgb(65, 142, 84);
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+}
+
+
+.navbar a{
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    font-size: medium;   
+}
+.navbar a:hover{
+    background-color: aqua;
+    border-radius: 5px;
+}
+
+.box-model{
+    padding: 10px;
+    background-color: blue;
+    border: 10 px solid yellow;
+    margin: 20px;
+
+
+}
+
+
+.sidebar{
+    background-color: rgb(13, 30, 30);
+    width: 200px;
+    height: 100%;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    padding: 15px;
+    box-sizing: border-box;
+}
+.sidebar ul{
+    list-style: none;
+    padding: 0;
+
+}
+
+.sidebar ul li{
+    color: white;
+    text-decoration: none;
+
+}
+
+.sidebar ul li a{
+    color: white;
+    text-decoration: none;
+}
+.sidebar ul li a:hover{
+    text-decoration: underline;
+}
+
+
+.maincontent{
+    margin-left: 220px;
+    padding: 20px;}

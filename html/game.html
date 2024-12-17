@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowboarder Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #87CEEB;
+            overflow: hidden;
+            flex-direction: column;
+        }
+        canvas {
+            background-color: #fff;
+            border: 2px solid #000;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #008CBA;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005f73;
+        }
+        #highScore {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="highScore">High Score: 0</div>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <button id="restartButton" style="display: none;">Restart</button>
+    <button id="homeButton" style="display: none;">Home</button>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const restartButton = document.getElementById('restartButton');
+        const homeButton = document.getElementById('homeButton');
+        const highScoreElement = document.getElementById('highScore');
+
+        const snowboarderImg = new Image();
+        snowboarderImg.src = 'https://i.pinimg.com/736x/65/aa/95/65aa95c37d3d7fc210fb0e5406c56242.jpg';
+
+        const treeImg = new Image();
+        treeImg.src = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b9e405d8-7e26-4ce3-a7d8-dd388ca2b4dc/d5fvhyc-10c08d49-d7cb-4e06-9dc5-84e23043bf1d.png/v1/fill/w_900,h_1263/pine_tree_png_by_moonglowlilly_d5fvhyc-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI2MyIsInBhdGgiOiJcL2ZcL2I5ZTQwNWQ4LTdlMjYtNGNlMy1hN2Q4LWRkMzg4Y2EyYjRkY1wvZDVmdmh5Yy0xMGMwOGQ0OS1kN2NiLTRlMDYtOWRjNS04NGUyMzA0M2JmMWQucG5nIiwid2lkdGgiOiI8PTkwMCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.3d7YD_zdAJCh1FydoHNqU7lDwf1FtR_glaxgD3XaYyc';
+
+        const snowboarder = {
+            x: canvas.width / 2 - 15,
+            y: canvas.height - 60,
+            width: 30,
+            height: 30,
+            speed: 15
+        };
+
+        const trees = [];
+        const treeWidth = 30;
+        const treeHeight = 40;
+        let gameInterval;
+        let score = 0;
+        let treeSpeed = 2;
+        let highScore = 0;
+
+        function drawSnowboarder() {
+            ctx.drawImage(snowboarderImg, snowboarder.x, snowboarder.y, snowboarder.width, snowboarder.height);
+        }
+
+        function drawTrees() {
+            trees.forEach(tree => {
+                ctx.drawImage(treeImg, tree.x, tree.y, treeWidth, treeHeight);
+            });
+        }
+
+        function updateTrees() {
+            trees.forEach(tree => {
+                tree.y += treeSpeed;
+            });
+
+            // Remove trees that go off screen
+            while (trees.length > 0 && trees[0].y > canvas.height) {
+                trees.shift();
+                score++;
+
+                // Increase speed as score increases
+                if (score % 10 === 0) {
+                    treeSpeed += 0.5;
+                }
+            }
+
+            // Add new trees
+            if (Math.random() < 0.02) {
+                const treeX = Math.random() * (canvas.width - treeWidth);
+                trees.push({ x: treeX, y: -treeHeight });
+            }
+        }
+
+        function detectCollision() {
+            for (const tree of trees) {
+                if (
+                    snowboarder.x < tree.x + treeWidth &&
+                    snowboarder.x + snowboarder.width > tree.x &&
+                    snowboarder.y < tree.y + treeHeight &&
+                    snowboarder.y + snowboarder.height > tree.y
+                ) {
+                    clearInterval(gameInterval);
+                    highScore = Math.max(highScore, score);
+                    highScoreElement.textContent = `High Score: ${highScore}`;
+                    restartButton.style.display = 'block';
+                    homeButton.style.display = 'block';
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function drawScore() {
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 20);
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawSnowboarder();
+            drawTrees();
+            drawScore();
+
+            updateTrees();
+
+            if (detectCollision()) return;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && snowboarder.x > 0) {
+                snowboarder.x -= snowboarder.speed;
+            } else if (e.key === 'ArrowRight' && snowboarder.x < canvas.width - snowboarder.width) {
+                snowboarder.x += snowboarder.speed;
+            }
+        });
+
+        restartButton.addEventListener('click', () => {
+            score = 0;
+            treeSpeed = 2;
+            trees.length = 0;
+            restartButton.style.display = 'none';
+            homeButton.style.display = 'none';
+            gameInterval = setInterval(updateGame, 20);
+        });
+
+        homeButton.addEventListener('click', () => {
+            window.location.href = '../index.html'; // Adjusted to navigate out of the HTML folder to index.html
+        });
+
+        function startGame() {
+            snowboarderImg.onload = () => {
+                treeImg.onload = () => {
+                    gameInterval = setInterval(updateGame, 20);
+                };
+            };
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
